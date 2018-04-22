@@ -66,8 +66,10 @@ def rdt_send(client_socket, window_size, server_name, sever_port):
             send_packet(packet_to_send[window_start + packet_number_tracking])
             timestamp[window_start + packet_number_tracking] = time.time()
             packet_number_tracking += 1
-        if packet_number_tracking > 0 and (time.time() - timestamp[window_start]) > RTT:
+        if packet_number_tracking > 0 and (time.time() - timestamp[window_start]) > RTO:
             print("Time out, Sequence number: " + str(window_start))
+            global retransmissions
+            retransmissions+=1
             packet_number_tracking = 0
         lock.release()
 
@@ -127,7 +129,9 @@ if __name__ == "__main__":
     fin_packet_type = "1111111111111111"
     packet_type_ack_16_bits = "1010101010101010"
     zeros = "0000000000000000"
-    RTT = 0.1
+    retransmissions = 0
+
+    RTO = 0.05 # value in seconds
     if len(sys.argv) == 6 and sys.argv[1] and sys.argv[2] and sys.argv[1] and sys.argv[3] and sys.argv[4] and sys.argv[5]:
         server_name = sys.argv[1]
         server_port = int(sys.argv[2])
@@ -145,7 +149,11 @@ if __name__ == "__main__":
     print("Total Packets present : "+str(total_packets))
     t = threading.Thread(target= receive_ACK, args= (client_socket,))
     t.start()
+    start_time = time.time()
     rdt_send(client_socket, n, server_name, server_port)
     t.join()
-
+    end_time = time.time()
+    time_taken = end_time - start_time
+    print("Time for sending and receiving Acknowledgements", str(time_taken))
+    print("Retransmissions", str(retransmissions))
     client_socket.close()
