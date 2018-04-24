@@ -1,6 +1,6 @@
 import socket
 import sys
-import numpy
+import random
 import struct
 
 def decapsulate(packet):
@@ -64,7 +64,7 @@ if __name__ == '__main__':
 
         if check_check_sum(data,checksum) == 0 :
             # Check check sum will return 0 only if there is not issues in the checksum of the computed
-            if numpy.random.random() < LOSS_PROBABILITY:
+            if random.random() < LOSS_PROBABILITY:
                 # the packet has to be dropped
                 print('Packet loss, sequence number = ', str(sequence_number))
                 continue
