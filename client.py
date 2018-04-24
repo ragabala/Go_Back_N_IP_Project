@@ -29,7 +29,7 @@ def form_packet(packet, seq, packet_type):
 
 
 def extract_from_file(file, mss):
-    '''This is used for extracting mss '''
+    '''This is used for extracting file into mss chuncj '''
     current_seq = 0
     packet = ''
     try:
@@ -125,14 +125,15 @@ if __name__ == "__main__":
     timestamp = []
     lock = threading.Lock()
     total_packets = 0
-    packet_type_data_16_bits = "0101010101010101"
-    fin_packet_type = "1111111111111111"
-    packet_type_ack_16_bits = "1010101010101010"
-    zeros = "0000000000000000"
+    packet_type_data_16_bits = "0101010101010101"  # the bits that conforms if its a data packet
+    fin_packet_type = "1111111111111111"  # the bits that confirm if its a fin packet
+    packet_type_ack_16_bits = "1010101010101010"  # the bits that confirm if its a ack packet
+    zeros = "0000000000000000"  # the bits that confirm if its a ack packet
     retransmissions = 0
 
-    RTO = 0.05 # value in seconds
+    RTO = 0.05 # value in seconds - this is the retransmission timeout
     if len(sys.argv) == 6 and sys.argv[1] and sys.argv[2] and sys.argv[1] and sys.argv[3] and sys.argv[4] and sys.argv[5]:
+        ''' we read the command line arguments here. If not present in the expected format we raise an exception'''
         server_name = sys.argv[1]
         server_port = int(sys.argv[2])
         file = sys.argv[3]
@@ -143,7 +144,7 @@ if __name__ == "__main__":
         raise ValueError("Please enter valid arguments in the order: server host name, server port, download file name, window size and MSS")
     print("Server name: " + str(server_name) + " and port " + str(server_port))
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    client_socket.bind(('0.0.0.0', client_port))
+    client_socket.bind(('0.0.0.0', client_port))  # we are binding with 0.0.0.0, which is a wildchar IP used for accepting any incoming requests
     print("client running on IP " + str(client_ip) + " and port " + str(client_port))
     extract_from_file(file, mss)
     print("Total Packets present : "+str(total_packets))
